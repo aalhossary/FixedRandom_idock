@@ -583,6 +583,50 @@ void ligand::write_models(const path& output_ligand_path, const vector<result>& 
 	}
 }
 
+
+string print_conf(const conformation& c) {
+	string out = "";
+	out += "pos: [";
+	for (auto it = c.position.begin(); it != c.position.end(); ++it){
+		// out += "\t" + to_string(*it) + "\n";
+		out += to_string(*it);
+
+		if (it + 1 == c.position.end()) {
+			out += "]\n";
+		}
+		else {
+			out += " ";
+		}
+	}
+	out += "ori: [";
+	for (auto it = c.orientation.begin(); it != c.orientation.end(); ++it){
+		// out += "\t" + to_string(*it) + "\n";
+		out += to_string(*it);
+
+		if (it + 1 == c.orientation.end()) {
+			out += "]\n";
+		}
+		else {
+			out += " ";
+		}
+
+	}
+	out += "tor: [";
+	for (auto it = c.torsions.begin(); it != c.torsions.end(); ++it){
+		// out += "\t" + to_string(*it) + "\n";
+		out += to_string(*it);
+
+		if (it + 1 == c.torsions.end()) {
+			out += "]\n";
+		}
+		else {
+			out += " ";
+		}
+	}
+	return out;
+}
+
+
 void ligand::monte_carlo(vector<result>& results, const size_t seed, const scoring_function& sf, const receptor& rec, const bool save_history, vector<result>& history_results) const
 {
 	// Define constants.
@@ -605,11 +649,12 @@ void ligand::monte_carlo(vector<result>& results, const size_t seed, const scori
 	//normal_distribution<double> n01(0, 1);
 
 	FixedRandom r(seed, num_entities - 1, rec.corner0, rec.corner1);
-	//for (size_t i = 0; i < 5; i++){
-	//	cout << fixed << setprecision(15) << r.upi() << endl;
+	//for (size_t i = 0; i < 3; i++){
+	//	cout << fixed << setprecision(15) << r.ub0() << endl;
+	//	cout << fixed << setprecision(15) << r.ub1() << endl;
+	//	cout << fixed << setprecision(15) << r.ub2() << endl;
 	//}
 	// I tested, and I confirm that the numbers here are identical C++/python for task number 0. Amr
-
 
 
 	// Generate an initial random conformation c0, and evaluate it.
@@ -627,6 +672,7 @@ void ligand::monte_carlo(vector<result>& results, const size_t seed, const scori
 			c0.torsions[i] = r.upi();
 		}
 		valid_conformation = evaluate(c0, sf, rec, e_upper_bound, e0, f0, g0);
+		// cout << i << '\t' << print_conf(c0) << endl;
 	}
 	if (!valid_conformation) return;
 	double best_e = e0; // The best free energy so far.
